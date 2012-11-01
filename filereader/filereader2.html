@@ -11,8 +11,7 @@
     
 <div>
           
-  <div id="dropzone" style="margin:30px; width:500px; height:300px; border:1px dotted grey;">Drag & drop your file
-    here...
+  <div id="dropzone" style="margin:30px; width:500px; height:300px; border:1px dotted grey; padding:8px;">试试拖动本地文件到框内
   </div>
 
   <script type="text/javascript">
@@ -44,12 +43,33 @@
         event.stopPropagation();
         event.preventDefault();
 
+        // show file informations
+        showDropFiles(event);
+
+        // 发送文件给后台
         var filesArray = event.dataTransfer.files;
         for (var i = 0; i < filesArray.length; i++) {
           sendFile(filesArray[i]);
         }
       }
     };
+
+
+    function showDropFiles(event)
+    {
+      var dt = event.dataTransfer;
+      var files = dt.files;
+
+      var count = files.length;
+      var output = ("File Count: " + count + "\n");
+
+      for (var i = 0; i < files.length; i++) {
+        output += (" File " + i + ":\n(" + (typeof files[i]) + ") : <" + files[i] + " > " +
+          files[i].name + " " + files[i].size + "\n");
+      }
+
+      document.getElementById('dropzone').textContent = output;
+    }
   </script>   
 </div>
 </body>
