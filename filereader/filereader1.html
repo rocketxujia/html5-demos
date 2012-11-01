@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<title>File Reader</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style type="text/css">
+			body{
+				text-align:center;
+			}
+			#demo_result img{
+				box-shadow: 2px 2px 10px #999;
+				padding:3px;
+			}
+			p{
+				padding:20px 0;
+			}
+			.warn{
+				font-weight:bold;
+				color:red;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<p><label>请选择一个图像文件：</label><input type="file" id="demo_input" /></p>
+		<div id="demo_result"></div>
+		
+		<script type="text/javascript"  src="http://code.jquery.com/jquery-1.7.2.js" ></script>
+		<script type="text/javascript">
+      $(function(){
+        var $input = $('#demo_input'),
+          $result = $('#demo_result');
+
+        if(typeof FileReader === 'undefined'){
+          $result.innerHTML = "<p class='warn'>抱歉，你的浏览器不支持 FileReader</p>";
+          $input.setAttribute('disabled','disabled');
+        }
+
+        $input.on('change', function(e){
+          var type, file, reader;
+
+          // 判断文件类型
+          type = this.files[0].type;
+          if( !/image\/\w+/.test(type) ){
+            alert("请确保选择的文件为图像类型");
+            return false;
+          }
+
+          // 读取本地图片并预览
+          file = this.files[0];
+          reader = new FileReader();
+          reader.onload = function(e){
+            //  this == e.target  // 都指向reader对象
+            $result.html('<img src="'+this.result+'" alt=""/>');
+          };
+          reader.readAsDataURL(file);
+        }) ;
+
+      });
+		</script>
+	</body>
+</html>
