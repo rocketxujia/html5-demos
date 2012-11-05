@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>video</title>
+</head>
+<body>
+<video id="videoElement" controls width="480" height="270">
+  <source src="../audio&video/videos/movie.ogg" type="video/ogg" />
+  <source src="../audio&video/videos/movie.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'" />
+  <source src="../audio&video/videos/movie.webm" type="video/webm" />
+</video>
+<div>visible state time are:　<span id="timer"></span></div>
+<p>This page demonstrates the <a href="http://code.google.com/chrome/whitepapers/pagevisibility.html">Page Visibility API</a>.</p>
+<p>The API can be used to check if a web page is visible.</p>
+
+<p>When you minimise this page or move to another tab, a <em>visibilitychange</em> event is triggered. The video pauses and the page title stops changing &ndash; and vice versa if you return to the page.</p>
+
+<p><strong>Please note: this demo requires a browser such as <a href="http://www.getfirefox.net/" title="Download Firefox">Firefox</a> or <a href="http://www.google.com/chrome/" title="Google Chrome downloads">Google&nbsp;Chrome</a> that supports the Page Visibility API.</strong></p>
+
+<p>For more information, please see my blog at <a href="http://samdutton.wordpress.com/2011/07/15/the-page-visibility-api/" title="Sam Dutton's blog">samdutton.wordpress.com</a>.</p>
+
+<p>To detect element visibility (rather than page visibility) take a look at the <a href="https://github.com/protonet/jquery.inview" title="Download jquery.inview">jquery.inview plugin</a>.</p>
+
+<script type="text/javascript"  src="http://code.jquery.com/jquery-1.7.2.js" ></script>
+<script type="text/javascript" src="visibility.core.js"></script>
+<script type="text/javascript" src="visibility.timers.js"></script>
+<script type="text/javascript">
+  if(Visibility.isSupported()){
+    console.log('support page visibility api');
+  }
+
+  var $video = $('#videoElement');
+  Visibility.change(function (e, state) {
+    console.log( 'changed: '+ state );
+    if ( state == 'visible') {
+      $video[0].play();
+    }else if(state == 'hidden'){
+      $video[0].pause();
+    }else if(state == 'prerender'){
+      $video[0].pause();
+    }
+  });
+  Visibility.onVisible(function(){
+    $video[0].play();
+  });
+
+  // 显示的时间统计
+  var $timer = $('#timer');
+  Visibility.every(1000, function () {
+    var value = parseInt($timer.text()) || 0;
+    $timer.text( ++value );
+  });
+</script>
+
+</body>
+</html>
