@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>bootup</title>
+</head>
+<body>
+  <script type="text/javascript" src="bootup.js"></script>
+  <script type="text/javascript">
+    var cachedFiles = new BootUp(
+      ["jquery-1.7.2.js", "about.jpg"],
+      {
+        success: function() {
+          init();
+        },
+        error: function() {
+          alert("There was an error loading the files. Please try again later.");
+        }
+      }
+    );
+
+    function init() {
+
+      // we have a reference to the BootUp object in cachedFiles
+      var source = cachedFiles.getFile("about.jpg");
+      // you must use the exact file name that you used to get the file
+      // otherwise it will return null
+
+      /*if (source) {
+        $("body").append(source);
+      }*/
+
+      // we now have the contents of main_template.html in our source variable
+      if (source) {
+        $(document.body).append('<img src="'+source+'" alt=""/>');
+      }
+
+    }
+  </script>
+</body>
+</html>

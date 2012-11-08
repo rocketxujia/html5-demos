@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IndexedDB</title>
+</head>
+<body>
+<div>
+  view console.log.
+</div>
+<div id="list"></div>
+
+<script type="text/javascript">
+  // Initialising the window.IndexedDB Object
+  window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+  window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange;
+  window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+
+  console.log("Trying to open database ...");
+  var DAO = (DAO || {});
+  var version = DAO.version ? DAO.version + 1 : 1;
+  var db = null;
+
+  try {
+    var dbOpenRequest = window.indexedDB.open("BookShop1", version);
+    dbOpenRequest.onsuccess = function(event){
+      db = dbOpenRequest.result;
+      DAO.version = db.version;
+      var thisDB = db; // Need to create this variable since the variable db is assigned to other things later
+      db.onversionchange = function(e){
+        console.log("Version change triggered, so closing database connection", e.oldVersion, e.newVersion, thisDB);
+        thisDB.close();
+      };
+      console.log("Database Opened", db, event);
+      /* Code for ${db.open} */
+      console.log("List of Object Stores", db.objectStoreNames);
+
+      console.log("Opening a new transaction.");
+      try {
+        var trans = db.transaction(["ObjectStore_BookList"], "readwrite");
+        console.log("Transaction created", trans);
+        trans.oncomplete = function(e){
+          console.log("Transaction Complete");
+        };
+        trans.onabort = function(e){
+          console.log("Transaction Aborted");
+        };
+        trans.onerror = function(e){
+          console.log("Transaction Error");
+        };
+
+        // open ObjectStore_BookList
+        console.log("Opening an Object Store using a transaction.");
+        try {
+          var objectStore = trans.objectStore("ObjectStore_BookList");
+          console.log("Object Store opened", objectStore);
+          /* Code for ${objectStore.open}*/
+        } catch (e) {
+          console.log("Could not open objectStore. You may have to create it first");
+          console.error(e);
+        }
+        getBooksInfo(objectStore);
+        // add book again.
+        addBook( trans, objectStore);
+      } catch (e) {
+        console.log("Could not open transaction");
+        console.error(e);
+      }
+    };
+    dbOpenRequest.onupgradeneeded = function(e){
+      console.log("Database upgrade needed");
+      var db = dbOpenRequest.result;
+      var transaction = dbOpenRequest.transaction;
+      /* Code for ${db.upgrade} */
+      try {
+        var objectStore = db.createObjectStore("ObjectStore_BookList", {
+          "keyPath": "id",
+          "autoIncrement": true
+        });
+        objectStore.createIndex("author", "author", {
+          "unique": false,
+          "multiEntry": true
+        });
+        console.log("Object Store created", objectStore);
+        // add new book when setup ObjectStore_BookList
+        addBook( transaction, objectStore);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    dbOpenRequest.onerror = function(e){
+      console.log("DB Open Request Error");
+    };
+    dbOpenRequest.onblocked = function(e){
+      console.log("DB Open Request Blocked");
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+
+  // add new Book
+  function addBook( transaction, objectStore ){
+    var objectId = new Date().getTime();
+    var data = {
+      "bookName": "Book-" + Math.random(),
+      "author": "xujia"+ Math.random(),
+      "price": parseInt(Math.random() * 1000),
+      "rating": (Math.random() > 0.5 ? "good" : "bad"),
+      "id": objectId
+    };
+    console.log("Trying to save...", data);
+    var request = objectStore.add(data);
+    request.onsuccess = function(event){
+      console.log("Saved id ", request.result);
+      objectId = request.result;
+    };
+    request.onerror = function(e){
+      console.error(e);
+      transaction.abort();
+    };
+  }
+
+  function getBookInfo(objectStore, objectId){
+    var request;
+    if( objectId ){
+      console.log("Trying to get the last saved object using saved example with id " + objectId);
+      request = objectStore.get(objectId);
+      request.onsuccess = function(event){
+        console.log("Got data ", request.result);
+        objectId = request.result.id;
+      };
+      request.onerror = function(e){
+        console.log("Could not get object");
+        console.error(e);
+      };
+    }
+  }
+
+  function getBooksInfo(objectStore){
+    var request, books = [], authors= [];
+    request = objectStore.openCursor();
+    request.onsuccess = function(event) {
+      var cursor = event.target.result;
+      if (cursor) {
+        books.push(cursor.value);
+        authors.push()
+        cursor.continue();
+      }else{
+        console.log("Got data ",books);
+      }
+    };
+    request.onerror = function(e){
+      console.log("Could not open Cursor");
+      console.error(e);
+    };
+  }
+
+</script>
+</body>
+</html>

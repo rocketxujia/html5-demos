@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body style="height:1000px; margin: 0px; ">
+  <div id="output">
+
+  </div>
+  <script type="text/javascript">
+    var getRequest = function(){
+      return XMLHttpRequest? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    };
+
+    var xhr = getRequest();
+    xhr.responseType = 'blob';
+    xhr.onreadystatechange = function(){
+      var _xhr = this;
+      if(_xhr.readyState = 4 && _xhr.status == 200){
+        var blob = new Blob([_xhr.response],{"type": 'image/gif'} );
+        var reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onload = function(){
+          document.body.style.background= 'url("' + this.result + '") 0 0 ';
+        };
+      }
+    };
+    xhr.open("GET", 'body.gif', true);
+    xhr.send(null);
+  </script>
+</body>
+</html>
